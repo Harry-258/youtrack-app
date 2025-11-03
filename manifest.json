@@ -1,0 +1,22 @@
+{
+  "name": "youtrack-app",
+  "title": "youtrack-app",
+  "description": "Lists available projects.",
+  "$schema": "https://json.schemastore.org/youtrack-app.json",
+  "vendor": {
+    "name": "Harald Toth",
+    "url": ""
+  },
+  "icon": "icon.svg",
+  "widgets": [
+
+    {
+      "key": "test-widget",
+      "name": "Test-Widget",
+      "indexPath": "test-widget/index.html",
+      "extensionPoint": "MAIN_MENU_ITEM",
+      "iconPath": "test-widget/widget-icon.svg",
+      "description": "Lists available projects."
+    }
+  ]
+}
