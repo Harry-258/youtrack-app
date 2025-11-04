@@ -37,6 +37,11 @@ export default defineConfig({
       structured: true
     })
   ],
+    resolve: {
+        alias: {
+            'react-compiler-runtime': 'react/jsx-runtime'
+        }
+    },
   root: './src',
   base: '',
   publicDir: 'public',
