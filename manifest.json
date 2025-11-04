@@ -9,7 +9,6 @@
   },
   "icon": "icon.svg",
   "widgets": [
-
     {
       "key": "test-widget",
       "name": "Test-Widget",
