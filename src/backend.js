@@ -2,21 +2,21 @@ exports.httpHandler = {
   endpoints: [
       {
           method: 'POST',
-          path: 'saveFlag',
+          path: 'flag',
           handle: async function handle(ctx) {
-              const body = await ctx.request.body('value');
-              const {value} = JSON.parse(body);
-              ctx.storage.set('backendFlag', value);
+              const body = await ctx.request.body;
+              const newFlagValue = JSON.parse(body).value;
+              // await ctx.storage.set('backendFlag', newFlagValue);
 
-              return ctx.response.json({ value: value });
+              return ctx.response.json({value: newFlagValue});
           }
       },
       {
           method: 'GET',
-          path: 'getFlag',
+          path: 'flag',
           handle: async function handle(ctx) {
-              const value = ctx.storage.get('backendFlag');
-              return ctx.response.json({ value: value });
+              // const flagValue = (await ctx.storage.get('backendFlag')) ?? "false";
+              return ctx.response.json({value: false});
           }
       }
   ]
