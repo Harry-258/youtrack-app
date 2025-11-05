@@ -1,73 +1,86 @@
 import React, {memo, useCallback, useState, useEffect} from 'react';
-import Button from '@jetbrains/ring-ui-built/components/button/button';
 import {YouTrackProject} from "../../util/@types.ts";
+import Toggle from "@jetbrains/ring-ui-built/components/toggle/toggle";
+import {
+    getFieldDefaultValue,
+    createField,
+    updateFieldValue,
+    getFieldID
+} from "../../util/apiUtils.ts";
 
 const host = await YTApp.register();
 
 const AppComponent: React.FunctionComponent = () => {
-    const [backendFlagValue, setBackendFlagValue] = useState<boolean>();
+    const [backendFlagValue, setBackendFlagValue] = useState<boolean>(true);
     const [projects, setProjects] = useState<YouTrackProject[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
+    const [customFieldId, setCustomFieldId] = useState<string | null>(null);
+
+    const customFieldName = "Backend flag";
 
     useEffect(() => {
-        // const fetchProjects = async () => {
-        //     try {
-        //         const requestResponse = await host.fetchYouTrack('admin/projects?fields=name,team');
-        //         setProjects(requestResponse as YouTrackProject[]);
-        //     } catch (error) {
-        //         console.error(`Error fetching projects: ${error}`);
-        //         setError(true);
-        //     } finally {
-        //         setLoading(false);
-        //     }
-        // };
-        // fetchProjects();
-
-        const fetchBackendFlag = async () => {
+        /**
+         *
+         */
+        const fetchProjects = async () => {
             try {
-                const response = await host.fetchApp('backend/flag', {
-                    method: 'GET',
-                });
-                // @ts-ignore
-                const value = response.value;
-                // @ts-ignore
-                console.log(`Backend flag is ${response.value} | response is: ${JSON.stringify(response)}`);
-                setBackendFlagValue(value === "true");
+                const requestResponse = await host.fetchYouTrack('admin/projects?fields=name');
+                setProjects(requestResponse as YouTrackProject[]);
             } catch (error) {
-                console.log(`Error fetching backend flag: ${error}`);
+                console.error(`Error fetching projects: ${error}`);
+                setError(true);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProjects();
+
+        /**
+         *
+         */
+        const fetchBackendFlag = async () => {
+            const fieldId = await getFieldID(customFieldName, host);
+            if (fieldId === null) {
+                setCustomFieldId(await createField(customFieldName, host, "false"));
+                setBackendFlagValue(false);
+            } else {
+                setCustomFieldId(fieldId);
+                const defaultValue = await getFieldDefaultValue(fieldId, host);
+                console.log(`Default value is: ${defaultValue}`);
+                setBackendFlagValue(defaultValue === "false");
             }
         }
         fetchBackendFlag();
     }, []);
 
+    /**
+     *
+     */
     const toggleBackendFlag = useCallback(async () => {
-        try {
-            const response = await host.fetchApp('backend/flag', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: {value: !backendFlagValue},
-            });
-            // @ts-ignore
-            const newValue = response.value;
-            setBackendFlagValue(newValue);
-            console.log(`Backend new flag set to ${newValue} | response is: ${JSON.stringify(response)}`);
-        } catch (error) {
-            console.error(`Error setting backend flag: ${error}`);
-        }
+        const newFlagValue = !backendFlagValue;
+        // TODO: update flag. If it doesn't exist anymore, create it and save the new ID.
+
+        // if (customFieldId !== null || await getFieldID(customFieldName, host)) {
+        //     await updateFieldValue(customFieldName, host, newFlagValue.toString());
+        // } else {
+        //     await createField(customFieldName, host, newFlagValue.toString());
+        // }
     }, [backendFlagValue]);
 
   return (
     <div className="widget">
-      <Button primary onClick={toggleBackendFlag}>Toggle Backend</Button>
-        <div>Backend flag state is: {backendFlagValue}</div>
+        <Toggle
+            checked={backendFlagValue}
+            onChange={toggleBackendFlag}
+        >
+            Switch backend flag
+        </Toggle>
         {loading && <div>Loading projects...</div>}
         {error && <div>Error loading projects</div>}
 
         {projects.map((project, index) =>
-            <div key={index}>{project.name}</div>
+            <span key={index}>{project.name}</span>
         )}
     </div>
   );
