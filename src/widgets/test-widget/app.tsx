@@ -1,12 +1,7 @@
 import React, {memo, useCallback, useState, useEffect} from 'react';
 import {YouTrackProject} from "../../util/@types.ts";
 import Toggle from "@jetbrains/ring-ui-built/components/toggle/toggle";
-import {
-    getFieldDefaultValue,
-    createField,
-    updateFieldValue,
-    getFieldID
-} from "../../util/apiUtils.ts";
+import Button from "@jetbrains/ring-ui-built/components/button/button";
 
 const host = await YTApp.register();
 
@@ -15,13 +10,11 @@ const AppComponent: React.FunctionComponent = () => {
     const [projects, setProjects] = useState<YouTrackProject[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
-    const [customFieldId, setCustomFieldId] = useState<string | null>(null);
-
-    const customFieldName = "Backend flag";
+    const [userID, setUserID] = useState<string>("");
 
     useEffect(() => {
         /**
-         *
+         * Fetches all projects from YouTrack.
          */
         const fetchProjects = async () => {
             try {
@@ -37,18 +30,23 @@ const AppComponent: React.FunctionComponent = () => {
         fetchProjects();
 
         /**
-         *
+         * Fetches the current value of the flag from the backend.
          */
         const fetchBackendFlag = async () => {
-            const fieldId = await getFieldID(customFieldName, host);
-            if (fieldId === null) {
-                setCustomFieldId(await createField(customFieldName, host, "false"));
-                setBackendFlagValue(false);
-            } else {
-                setCustomFieldId(fieldId);
-                const defaultValue = await getFieldDefaultValue(fieldId, host);
-                console.log(`Default value is: ${defaultValue}`);
-                setBackendFlagValue(defaultValue === "false");
+            try {
+                const responseId = await host.fetchYouTrack<{ id: string }>('users/me');
+                setUserID(responseId.id);
+
+                const responseFlag = await host.fetchApp<{
+                    value: boolean
+                }>(`backend/flag`);
+                setBackendFlagValue(responseFlag.value);
+
+                console.log(
+                    `Flag value is: ${responseFlag.value}`
+                )
+            } catch (error) {
+                console.error(`Error fetching backend flag: ${JSON.stringify(error)}`);
             }
         }
         fetchBackendFlag();
@@ -59,13 +57,31 @@ const AppComponent: React.FunctionComponent = () => {
      */
     const toggleBackendFlag = useCallback(async () => {
         const newFlagValue = !backendFlagValue;
-        // TODO: update flag. If it doesn't exist anymore, create it and save the new ID.
+        try {
+            // const response = await host.fetchApp<{value: boolean}>(`backend/flag`, {
+            //     method: 'POST',
+            //     body: {
+            //         value: newFlagValue
+            //     },
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            // });
 
-        // if (customFieldId !== null || await getFieldID(customFieldName, host)) {
-        //     await updateFieldValue(customFieldName, host, newFlagValue.toString());
-        // } else {
-        //     await createField(customFieldName, host, newFlagValue.toString());
-        // }
+            const response = await host.fetchApp<{value: boolean}>('backend/flag', {
+                method: 'PUT',
+                query: {
+                    value: newFlagValue
+                }
+            })
+
+            setBackendFlagValue(response.value);
+            console.log(
+                `New flag value is: ${JSON.stringify(response)} ${response.value}`
+            )
+        } catch (error) {
+            console.error(`Error toggling flag: ${JSON.stringify(error)}`);
+        }
     }, [backendFlagValue]);
 
   return (
@@ -76,6 +92,12 @@ const AppComponent: React.FunctionComponent = () => {
         >
             Switch backend flag
         </Toggle>
+        <Button onClick={async () => {
+            const response = await host.fetchApp<{value: boolean}>(`backend/flag`, {
+                method: 'GET',
+            });
+            console.log(`Response is: ${JSON.stringify(response)}`);
+        }}>Test storage</Button>
         {loading && <div>Loading projects...</div>}
         {error && <div>Error loading projects</div>}
 

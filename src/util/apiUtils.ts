@@ -1,9 +1,9 @@
 import {EmbeddableWidgetAPI, HostAPI} from "../../@types/globals";
 import {CustomFieldNameAndId} from "./@types.ts";
 
-export async function getFieldDefaultValue(fieldID: string, host: HostAPI | EmbeddableWidgetAPI): Promise<string> {
+export async function getFieldAliasValue(fieldID: string, host: HostAPI | EmbeddableWidgetAPI): Promise<string> {
     try {
-        const result = await host.fetchYouTrack<{id: string, defaultValue: string}>(`admin/customFieldSettings/customFields/${fieldID}?fields=id,defaultValue`, {
+        const result = await host.fetchYouTrack<{id: string, alias: string}>(`admin/customFieldSettings/customFields/${fieldID}?fields=id,`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -13,7 +13,7 @@ export async function getFieldDefaultValue(fieldID: string, host: HostAPI | Embe
         // TODO: Get user default value. It should also be created in the first place.
         console.log(`Field default value is: ${JSON.stringify(result)}`);
 
-        return result.defaultValue;
+        return result.alias;
     } catch (error) {
         console.error(`Error checking if field exists: ${JSON.stringify(error)}`);
         return "";

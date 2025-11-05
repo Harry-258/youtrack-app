@@ -1,21 +1,24 @@
 exports.httpHandler = {
   endpoints: [
-      {
-          method: 'POST',
-          path: 'flag',
-          handle: async function handle(ctx) {
-              const body = await ctx.request.body;
-              const newFlagValue = JSON.parse(body).value;
+    {
+      method: 'PUT',
+      path: 'flag',
+      // to call this handler from App Widget, run
+      // `const res = await host.fetchApp('backend/flag', {method: 'PUT', query: {test: '123'}})`
+      handle: async function handle(ctx) {
+          ctx.globalStorage.extensionProperties.flag = ctx.request.getParameter('value');
 
-              return ctx.response.json({value: newFlagValue});
-          }
-      },
+          ctx.response.json({value: false});
+      }
+    },
       {
           method: 'GET',
           path: 'flag',
+          // to call this handler from App Widget, run
+          // `const res = await host.fetchApp('backend/flag', {method: 'PUT', query: {test: '123'}})`
           handle: async function handle(ctx) {
-              return ctx.response.json({value: false});
+              ctx.response.json({value: ctx.globalStorage.extensionProperties.flag});
           }
-      }
+      },
   ]
 };
