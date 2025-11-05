@@ -1,94 +1,70 @@
+import {YouTrackProject} from "./@types.ts";
 import {EmbeddableWidgetAPI, HostAPI} from "../../@types/globals";
-import {CustomFieldNameAndId} from "./@types.ts";
 
-export async function getFieldAliasValue(fieldID: string, host: HostAPI | EmbeddableWidgetAPI): Promise<string> {
+/**
+ * Asynchronously fetches all projects from YouTrack.
+ * @param host
+ * @param setProjects The function used to save the fetched projects.
+ * @param setError The function used to set the error state.
+ * @param setLoading The function used to set the loading state.
+ */
+export async function fetchProjects(
+    host: HostAPI | EmbeddableWidgetAPI,
+    setProjects: (projects: YouTrackProject[]) => void,
+    setError: (value: boolean) => void,
+    setLoading: (value: boolean) => void,
+) {
     try {
-        const result = await host.fetchYouTrack<{id: string, alias: string}>(`admin/customFieldSettings/customFields/${fieldID}?fields=id,`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        // TODO: Get user default value. It should also be created in the first place.
-        console.log(`Field default value is: ${JSON.stringify(result)}`);
-
-        return result.alias;
+        const requestResponse = await host.fetchYouTrack('admin/projects?fields=name');
+        setProjects(requestResponse as YouTrackProject[]);
     } catch (error) {
-        console.error(`Error checking if field exists: ${JSON.stringify(error)}`);
-        return "";
+        console.error(`Error fetching projects: ${error}`);
+        setError(true);
+    } finally {
+        setLoading(false);
     }
 }
 
 /**
- * Checks if a custom field with the given name exists in YouTrack
- * @param fieldName The name of the field to check
- * @param host The YouTrack instance to check against
- * @returns The ID of the field if it exists, or null if it doesn't
+ * Asynchronously fetches the current value of the flag from the backend.
+ * @param host
+ * @returns The current value of the flag, or null if there was an error.
  */
-export async function getFieldID(fieldName: string, host: HostAPI | EmbeddableWidgetAPI): Promise<string | null> {
-    const customFields = await getFieldNamesAndIDs(host);
-    for (const field of customFields) {
-        if (field.name === fieldName) {
-            return field.id;
-        }
-    }
-    return null;
-}
-
-export async function getFieldNamesAndIDs(host: HostAPI | EmbeddableWidgetAPI): Promise<CustomFieldNameAndId[]> {
+export async function fetchBackendFlag(host: HostAPI | EmbeddableWidgetAPI): Promise<boolean | null> {
     try {
-        return await host.fetchYouTrack<CustomFieldNameAndId[]>('admin/customFieldSettings/customFields?fields=name,id');
+        const responseFlag = await host.fetchApp<{value: boolean}>(`backend/flag`, {
+            method: 'GET',
+        });
+
+        console.log(
+            `Flag value is: ${responseFlag.value}`
+        );
+        return responseFlag.value;
     } catch (error) {
-        console.error(`Error getting all fields: ${JSON.stringify(error)}`);
-        return [];
+        console.error(`Error fetching backend flag: ${JSON.stringify(error)}`);
+        return null;
     }
 }
 
-export async function createField(fieldName: string, host: HostAPI | EmbeddableWidgetAPI, value: string): Promise<string> {
+/**
+ * Asynchronously changes the value of the flag in the backend. It first sends a PUT request to the endpoint,
+ * then fetches the flag value to keep it consistent with the frontend in case of race conditions.
+ * @param host
+ * @param newValue The new value to set for the flag.
+ * @returns The new value of the flag after the change, or null if there was an error.
+ */
+export async function changeBackendFlagValue(host: HostAPI | EmbeddableWidgetAPI, newValue: boolean): Promise<boolean | null> {
     try {
-        const response = await host.fetchYouTrack<{ id: string }>('admin/customFieldSettings/customFields', {
-            method: 'POST',
+        await host.fetchApp<{value: boolean}>('backend/flag', {
+            method: 'PUT',
             body: {
-                name: fieldName,
-                isAutoAttached: false,
-                isDisplayedInIssueList: false,
-                fieldType: {
-                    id: "string"
-                },
-                isPublic: false,
-                defaultValue: value,
-            },
-            headers: {
-                'Content-Type': 'application/json'
+                value: newValue
             }
         });
 
-        console.log(`Created a field; response is: ${JSON.stringify(response)}`);
-        return response.id;
+        return await fetchBackendFlag(host);
     } catch (error) {
-        console.error(`Error creating field: ${JSON.stringify(error)}`);
-        // TODO: Handle this
-        return "";
-    }
-}
-
-export async function updateFieldValue(fieldID: string, host: HostAPI | EmbeddableWidgetAPI, newValue: string): Promise<string> {
-    try {
-        const response = await host.fetchYouTrack<{ flag: boolean }>(`admin/customFieldSettings/customFields/${fieldID}?fields=name,id,value`, {
-            method: 'POST',
-            body: {
-                defaultValue: newValue,
-            },
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        console.log(`Updated field to ${"a"} | response is: ${JSON.stringify(response)}`);
-        return "true";
-    } catch (error) {
-        console.error(`Error updating field value: ${JSON.stringify(error)}`);
-        return "false";
+        console.error(`Error toggling flag: ${JSON.stringify(error)}`);
+        return null;
     }
 }
