@@ -26,7 +26,7 @@ npm run build
 npx youtrack-app upload dist --host <host> --token <permanent-token>   
 ```
 
-Where ```<host>``` is the base url of your server and ```<permanent-token>``` is the token for uploading your app to the server. To find out how to create your permanent token, go ![here](https://www.jetbrains.com/help/youtrack/devportal/Manage-Permanent-Token.html?_gl=1%2A1h8bmn7%2A_gcl_au%2AMTQ5NDUyNjQzNi4xNzYxOTA0NDA3LjkxMDUxNzkyLjE3NjE5MDQ0MjcuMTc2MTkwNDQyNw..%2AFPAU%2AMTQ5NDUyNjQzNi4xNzYxOTA0NDA3%2A_ga%2AMTY3ODE1Mzc5OS4xNzYxOTA0NDA0%2A_ga_9J976DJZ68%2AczE3NjI0MjU1NTYkbzIkZzEkdDE3NjI0MjYyOTkkajM2JGwwJGgw).
+Where ```<host>``` is the base url of your server and ```<permanent-token>``` is the token for uploading your app to the server. To find out how to create your permanent token, go [here](https://www.jetbrains.com/help/youtrack/devportal/Manage-Permanent-Token.html).
 
 Example:
 

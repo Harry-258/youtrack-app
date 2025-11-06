@@ -39,6 +39,7 @@ const AppComponent: React.FunctionComponent = () => {
 
       <div className="widget-content">
         <h2>Projects</h2>
+
         <div className='widget-content-controls'>
           <div className='searchbar'>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -57,6 +58,7 @@ const AppComponent: React.FunctionComponent = () => {
               className='searchbar-input'
             />
           </div>
+
           <Toggle
             checked={backendFlagValue}
             onChange={toggleBackendFlag}
@@ -64,15 +66,18 @@ const AppComponent: React.FunctionComponent = () => {
             Toggle backend flag
           </Toggle>
         </div>
+
         {isLoading && filteredProjects.length === 0 && <div>Loading projects...</div>}
+
         <div className='list'>
           {filteredProjects.length === 0 && !isLoading && <h3 style={{color: "var(--ring-border-disabled-color)"}}>No projects found</h3>}
+
           {filteredProjects.map((project) => (
             <div key={project.id} className='list-element'>
               <h3 style={{color: "var(--ring-grey-fill-color)"}}>{project.name}</h3>
             </div>
-                  )
-                )}
+            )
+          )}
         </div>
       </div>
     </div>
