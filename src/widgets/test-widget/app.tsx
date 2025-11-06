@@ -9,41 +9,46 @@ const AppComponent: React.FunctionComponent = () => {
     const [backendFlagValue, setBackendFlagValue] = useState<boolean>(true);
     const [projects, setProjects] = useState<YouTrackProject[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     useEffect(() => {
         // Passing the setProjects method because it's an asynchronous function,
-        // and it can't await in the useEffect hook.
-        fetchProjects(host, setProjects, setError, setLoading);
-        fetchBackendFlag(host);
+        // and it can't await in the useEffect hook to not assign a Promise object.
+        fetchProjects(host, setProjects, setErrorMessage, setLoading);
+        fetchBackendFlag(host, setBackendFlagValue, setErrorMessage);
     }, []);
 
     const toggleBackendFlag = useCallback(async () => {
-        const newFlagValue = !backendFlagValue;
-        const confirmedValue = await changeBackendFlagValue(host, newFlagValue);
+        await changeBackendFlagValue(host, !backendFlagValue, setErrorMessage);
 
-        if (confirmedValue !== null) {
-            setBackendFlagValue(confirmedValue);
-        } else {
-            setError(true);
-        }
+        // Calls fetch as well to persist in case of multiple toggles happening at the same time
+        await fetchBackendFlag(host, setBackendFlagValue, setErrorMessage);
     }, [backendFlagValue]);
 
+    // TODO: Set error message in components
   return (
     <div className="widget">
-        <Toggle
-            checked={backendFlagValue}
-            onChange={toggleBackendFlag}
-        >
-            Switch backend flag
-        </Toggle>
-        {loading && <div>Loading projects...</div>}
-        {error && <div>Error loading projects</div>}
+        <div className="widget-header">
+            <h1>YouTrack App</h1>
+            <p>Visualize your projects and save a boolean flag on the backend.</p>
+        </div>
 
-        {projects.map((project, index) =>
-            <span key={index}>{project.name}</span>
-        )}
+        <div className="widget-content">
+            <Toggle
+                checked={backendFlagValue}
+                onChange={toggleBackendFlag}
+            >
+                Toggle backend flag
+            </Toggle>
+            <h2 className="list-title">Projects</h2>
+            {loading && <div className="rich-list-item">Loading projects...</div>}
+            {projects.map((project, index) =>
+                <div className="rich-list-item" key={index}>
+                    {/*{index > 0 && <hr className="divider"/>}*/}
+                    <span key={index}>{project.name}</span>
+                </div>
+            )}
+        </div>
     </div>
   );
 };

@@ -7,11 +7,13 @@
     "dev": "vite",
     "build": "tsc -p tsconfig.app.json && vite build && youtrack-app validate dist",
     "lint": "eslint --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint --fix",
     "test": "echo 'no tests'",
     "pack": "rm -rf youtrack-app.zip && cd dist/ && bestzip ../youtrack-app.zip *",
     "upload": "youtrack-app upload dist"
   },
   "dependencies": {
+    "@jetbrains/ring-ui": "7.0.73",
     "@jetbrains/ring-ui-built": "^7.0.8",
     "core-js": "3.38.0",
     "react": "^18.3.1",
