@@ -51,7 +51,7 @@ const AppComponent: React.FunctionComponent = () => {
               onChange={(e) => {
                             setFilteredProjects(
                                 projects.filter(
-                                    project => project.name.toLowerCase().includes(e.target.value)
+                                    project => project.name.toLowerCase().includes(e.target.value.toLowerCase())
                                 )
                             );
                         }}

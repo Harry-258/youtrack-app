@@ -46,6 +46,6 @@ npm run test
 ## Future improvements:
 
 This project was done over the course of 2 days as part of a challenge. With more time, these are the improvements that could be made:
-- Make use of more RingUI components. I was only able to use the toggle button because the library was not working and I did not have time to fix it.
+- Make use of more RingUI components. I was only able to use the toggle button because I couldn't get the library to work in time.
 - Test the frontend component. Right now, only the utility methods used to call YouTrack's API are tested.
-- Extend the `User` entity instead of `AppGlobalStorage` to store the backend flag. This would imply persisting changes per user instead of globally.
+- Extend the `User` entity with a `flag` property instead of `AppGlobalStorage` to store the backend flag. This would imply persisting changes per user instead of globally.

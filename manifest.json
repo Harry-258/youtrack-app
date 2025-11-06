@@ -11,7 +11,7 @@
   "widgets": [
     {
       "key": "test-widget",
-      "name": "Test-Widget",
+      "name": "Project-List",
       "indexPath": "test-widget/index.html",
       "extensionPoint": "MAIN_MENU_ITEM",
       "iconPath": "test-widget/widget-icon.svg",
