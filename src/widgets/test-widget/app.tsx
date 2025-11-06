@@ -9,17 +9,11 @@ const AppComponent: React.FunctionComponent = () => {
     const [backendFlagValue, setBackendFlagValue] = useState<boolean>(true);
     const [projects, setProjects] = useState<YouTrackProject[]>([]);
     const [filteredProjects, setFilteredProjects] = useState<YouTrackProject[]>([])
-    const [loading, setLoading] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     useEffect(() => {
-        // Passing the setProjects method because it's an asynchronous function,
-        // and it can't await in the useEffect hook to not assign a Promise object.
-        fetchProjects(host, setErrorMessage).then((result) => {
-            setProjects(result);
-            setFilteredProjects(result);
-            setLoading(false);
-        });
+        fetchProjects(host, setProjects, setFilteredProjects, setIsLoading, setErrorMessage);
         fetchBackendFlag(host, setBackendFlagValue, setErrorMessage);
     }, []);
 
@@ -30,7 +24,12 @@ const AppComponent: React.FunctionComponent = () => {
         await fetchBackendFlag(host, setBackendFlagValue, setErrorMessage);
     }, [backendFlagValue]);
 
-    // TODO: Set error message in components
+    useEffect(() => {
+        if (errorMessage) {
+            host.alert(errorMessage);
+        }
+    }, [errorMessage]);
+
   return (
     <div className="widget">
       <div className="widget-header">
@@ -42,6 +41,10 @@ const AppComponent: React.FunctionComponent = () => {
         <h2>Projects</h2>
         <div className='widget-content-controls'>
           <div className='searchbar'>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="7" cy="7" r="4.5" stroke="#6C707E"/>
+              <path d="M10.1992 10.2002L13.4992 13.4961" stroke="#6C707E" strokeLinecap="round"/>
+            </svg>
             <input
               placeholder='Filter projects by name'
               onChange={(e) => {
@@ -61,14 +64,9 @@ const AppComponent: React.FunctionComponent = () => {
             Toggle backend flag
           </Toggle>
         </div>
-        {loading && filteredProjects.length === 0 && <div>Loading projects...</div>}
-        {errorMessage && (
-          <div className="error">
-            {errorMessage}
-          </div>
-        )}
+        {isLoading && filteredProjects.length === 0 && <div>Loading projects...</div>}
         <div className='list'>
-          {filteredProjects.length === 0 && !loading && <h3 style={{color: "var(--ring-border-disabled-color)"}}>No projects found</h3>}
+          {filteredProjects.length === 0 && !isLoading && <h3 style={{color: "var(--ring-border-disabled-color)"}}>No projects found</h3>}
           {filteredProjects.map((project) => (
             <div key={project.id} className='list-element'>
               <h3 style={{color: "var(--ring-grey-fill-color)"}}>{project.name}</h3>

@@ -17,5 +17,9 @@
     /* Linting */
     "strict": true
   },
-  "include": ["src", "@types"]
+  "include": [
+    "src",
+    "@types",
+    "node_modules/vitest/globals.d.ts"
+  ]
 }
