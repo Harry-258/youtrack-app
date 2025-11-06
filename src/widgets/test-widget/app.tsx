@@ -33,44 +33,50 @@ const AppComponent: React.FunctionComponent = () => {
     // TODO: Set error message in components
   return (
     <div className="widget">
-        <div className="widget-header">
-            <h1>Project Visualizer</h1>
-            <p>Visualize your projects and save a boolean flag on the backend.</p>
-        </div>
+      <div className="widget-header">
+        <h1>Project Visualizer</h1>
+        <p>Visualize your projects and save a boolean flag on the backend.</p>
+      </div>
 
-        <div className="widget-content">
-            <h2>Projects</h2>
-            <div className='widget-content-controls'>
-                <div className='searchbar'>
-                    <input
-                        placeholder='Filter projects by name'
-                        onChange={(e) => {
+      <div className="widget-content">
+        <h2>Projects</h2>
+        <div className='widget-content-controls'>
+          <div className='searchbar'>
+            <input
+              placeholder='Filter projects by name'
+              onChange={(e) => {
                             setFilteredProjects(
                                 projects.filter(
                                     project => project.name.toLowerCase().includes(e.target.value)
                                 )
                             );
                         }}
-                        className='searchbar-input'
-                    />
-                </div>
-                <Toggle
-                    checked={backendFlagValue}
-                    onChange={toggleBackendFlag}
-                >
-                    Toggle backend flag
-                </Toggle>
-            </div>
-            {loading && <div>Loading projects...</div>}
-            <div className='list'>
-                {filteredProjects.length === 0 && !loading && <h3 style={{color: "var(--ring-border-disabled-color)"}}>No projects found</h3>}
-                {filteredProjects.map((project, index) =>
-                    <div key={project.id} className='list-element'>
-                        <h3 style={{color: "var(--ring-grey-fill-color)"}} key={index}>{project.name}</h3>
-                    </div>
-                )}
-            </div>
+              className='searchbar-input'
+            />
+          </div>
+          <Toggle
+            checked={backendFlagValue}
+            onChange={toggleBackendFlag}
+          >
+            Toggle backend flag
+          </Toggle>
         </div>
+        {loading && filteredProjects.length === 0 && <div>Loading projects...</div>}
+        {errorMessage && (
+          <div className="error">
+            {errorMessage}
+          </div>
+        )}
+        <div className='list'>
+          {filteredProjects.length === 0 && !loading && <h3 style={{color: "var(--ring-border-disabled-color)"}}>No projects found</h3>}
+          {filteredProjects.map((project) => (
+            <div key={project.id} className='list-element'>
+              <h3 style={{color: "var(--ring-grey-fill-color)"}}>{project.name}</h3>
+            </div>
+                  )
+                )}
+        </div>
+      </div>
     </div>
   );
 };
