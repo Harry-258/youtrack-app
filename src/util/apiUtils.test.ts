@@ -1,6 +1,6 @@
 import { expect, describe, it, vi } from 'vitest';
 import {changeBackendFlagValue, fetchBackendFlag, fetchProjects} from "./apiUtils.ts";
-import {EmbeddableWidgetAPI, HostAPI} from "../../@types/globals";
+import {HostAPI} from "../../@types/globals";
 import {YouTrackProject} from "./@types.ts";
 
 describe('fetchProjects', () => {
