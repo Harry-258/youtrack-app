@@ -4,23 +4,19 @@ import {EmbeddableWidgetAPI, HostAPI} from "../../@types/globals";
 /**
  * Asynchronously fetches all projects from YouTrack.
  * @param host
- * @param setProjects The function used to save the fetched projects.
  * @param setErrorMessage The function used to set an error message in case of failure.
- * @param setLoading The function used to set the loading state.
+ * @returns An array of YouTrackProject objects, or an empty array if there was an error.
  */
 export async function fetchProjects(
     host: HostAPI | EmbeddableWidgetAPI,
-    setProjects: (projects: YouTrackProject[]) => void,
     setErrorMessage: (value: string) => void,
-    setLoading: (value: boolean) => void,
 ) {
     try {
-        const requestResponse = await host.fetchYouTrack('admin/projects?fields=name');
-        setProjects(requestResponse as YouTrackProject[]);
+        const requestResponse = await host.fetchYouTrack('admin/projects?fields=name,id');
+        return requestResponse as YouTrackProject[];
     } catch (error) {
         setErrorMessage(`There was an error loading the projects: ${error}`);
-    } finally {
-        setLoading(false);
+        return [];
     }
 }
 
