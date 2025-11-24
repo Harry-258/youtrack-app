@@ -2,6 +2,7 @@ import React, {memo, useCallback, useState, useEffect} from 'react';
 import {YouTrackProject} from "../../util/@types.ts";
 import Toggle from "@jetbrains/ring-ui-built/components/toggle/toggle";
 import {changeBackendFlagValue, fetchBackendFlag, fetchProjects} from "../../util/apiUtils.ts";
+import Alert from "@jetbrains/ring-ui-built/components/alert/alert";
 
 const host = await YTApp.register();
 
@@ -18,6 +19,7 @@ const AppComponent: React.FunctionComponent = () => {
     }, []);
 
     const toggleBackendFlag = useCallback(async () => {
+        setBackendFlagValue(!backendFlagValue);
         await changeBackendFlagValue(host, !backendFlagValue, setErrorMessage);
 
         // Calls fetch as well to persist in case of multiple toggles happening at the same time
@@ -66,6 +68,10 @@ const AppComponent: React.FunctionComponent = () => {
             Toggle backend flag
           </Toggle>
         </div>
+
+        <Alert type={Alert.Type.SUCCESS} showWithAnimation={false}>
+            Sample alert.
+        </Alert>
 
         {isLoading && filteredProjects.length === 0 && <div>Loading projects...</div>}
 
